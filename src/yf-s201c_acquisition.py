@@ -16,7 +16,7 @@ def readserial(comport, baudrate):
                          "yf-s201c",
                          f"{now.strftime('%Y-%m-%d_%H%M%S')}.csv")
     with open(fname, "w") as fh:
-        fh.write("Datetime,Pulse count,Flow (lpm),Error (%)\n")
+        fh.write("Datetime,Flow (lpm),Error (%)\n")
     
     logging.basicConfig(filename = fname,
                         encoding = "utf-8",
@@ -28,23 +28,12 @@ def readserial(comport, baudrate):
     while True:
         now = datetime.now()
         nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
-        pulse_count = ser.readline().decode().strip()
-        
-        if pulse_count:
-            pulse_count = float(pulse_count)
-            if pulse_count < 7.5:
-                # no measurements below 1 lpm
-                flow_lpm = 0
-            else:
-                flow_lpm = (pulse_count / 7.5); # lpm
-            
-            if flow_lpm <= 6:
-                error_perc = 0.01 * flow_lpm + 1
-            else:
-                error_perc = 0.1 * flow_lpm + 2.41
-            
+        flow_lpm = ser.readline().decode().strip()
+        if flow_lpm:
+            flow_lpm = float(flow_lpm) # [l/min]
+            err_p = 0.01 * flow_lpm + 1 if flow_lpm <= 6 else 0.1 * flow_lpm + 2.41 # [%]
             print(f"{nowstr},{flow_lpm}")
-            logging.info(f"{pulse_count},{flow_lpm},{error_perc}")
+            logging.info(f"{flow_lpm},{err_p}")
 
 
 def main():
