@@ -23,7 +23,7 @@ void loop()
   if(currentTime >= (lastTime + 1000))
   {
     lastTime = currentTime;
-    Serial.print(pulse_freq, DEC);
+    Serial.println(pulse_freq, DEC);
     pulse_freq = 0;
    }
 }

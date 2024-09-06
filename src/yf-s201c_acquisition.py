@@ -10,14 +10,13 @@ def readserial(comport, baudrate):
     now = datetime.now()
     ser = serial.Serial(comport, baudrate, timeout=0.1)
 
-    df = pd.read_csv("pulse-to-flow.csv", sep=",")
     fname = os.path.join(get_git_root(os.getcwd()),
                          "data",
                          "raw_data",
                          "yf-s201c",
                          f"{now.strftime('%Y-%m-%d_%H%M%S')}.csv")
     with open(fname, "w") as fh:
-        fh.write("Datetime,Pulse count,Flow (lpm),Error (%)\n")
+        fh.write("Datetime,Pulse count,Flow (lpm)\n")
     
     logging.basicConfig(filename = fname,
                         encoding = "utf-8",
@@ -30,16 +29,16 @@ def readserial(comport, baudrate):
         now = datetime.now()
         nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
         pulse_count = ser.readline().decode().strip()
-        pulse_count = round(float(pulse_count), 1)
-
+        
         if pulse_count:
-            _df = df[(df.pulse_min <= pulse_count) & (df.pulse_max >= pulse_count)].copy()
-            print(f"{nowstr},{float(_df.flow_lpm)}")
-            logging.info(f"{pulse_count},{float(_df.flow_lpm)},{float(_df.error_percent)}")
+            pulse_count = float(pulse_count)
+            flow_lpm = (pulse_count / 7.5); # L/min
+            print(f"{nowstr},{flow_lpm}")
+            logging.info(f"{pulse_count},{flow_lpm}")
 
 
 def main():
-    readserial(comport='COM5', baudrate=9600)
+    readserial(comport='/dev/cu.usbmodem101', baudrate=9600)
 
 
 if __name__ == '__main__':
