@@ -13,10 +13,9 @@ def readserial(comport, baudrate):
     fname = os.path.join(get_git_root(os.getcwd()),
                          "data",
                          "raw_data",
-                         "yf-s201c",
-                         f"yf-s201c-{now.strftime('%Y-%m-%d_%H%M%S')}.csv")
+                         f"rnd-yf-{now.strftime('%Y-%m-%d_%H%M%S')}.csv")
     with open(fname, "w") as fh:
-        fh.write("Datetime,Flow (lpm),Error (%)\n")
+        fh.write("Datetime,Flow,Tip\n")
     
     logging.basicConfig(filename = fname,
                         encoding = "utf-8",
@@ -29,13 +28,14 @@ def readserial(comport, baudrate):
     while True:
         now = datetime.now()
         nowstr = now.strftime('%Y-%m-%d %H:%M:%S')
-        flow_lpm = ser.readline().decode().strip()
+        msg = ser.readline().decode().strip()
     
-        if flow_lpm:
-            flow_lpm = float(flow_lpm) # [l/min]
-            err_p = 0.01 * flow_lpm + 1 if flow_lpm <= 6 else 0.1 * flow_lpm + 2.41 # [%]
-            print(f"{nowstr},{flow_lpm}")
-            logging.info(f"{flow_lpm},{err_p}")
+        if msg:
+            flow, tip = msg.split(",")
+            flow = float(flow)
+            tip = int(tip)
+            print(f"{nowstr},{flow},{tip}")
+            logging.info(f"{flow},{tip}")
 
 
 def main():

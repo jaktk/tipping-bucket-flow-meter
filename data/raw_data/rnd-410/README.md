@@ -1,0 +1,1 @@
+# raw data directory for data from a Hall effect sensor on tipping bucket
